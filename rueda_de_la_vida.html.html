@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8">
+  <base target="_top">
+  <title>La Rueda de la Vida</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f5efe6;
+      --warm-white: #fffdf9;
+      --brown: #a87d5a;
+      --brown-dark: #7a5c3f;
+      --brown-hover: #956e4c;
+      --brown-light: #ecddd0;
+      --brown-xlight: #f5ede4;
+      --text: #1c1208;
+      --text-muted: #7a6450;
+      --border: #e0cfbf;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--cream);
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--text);
+    }
+
+    .header-counter {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--brown-light);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 3px;
+      background: var(--brown);
+      border-radius: 3px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 0%;
+    }
+
+    /* ── MAIN LAYOUT ────────────────────────── */
+    .main {
+      padding: 96px 22px 48px;
+      min-height: 100vh;
+    }
+
+    /* ── QUESTION CARD ──────────────────────── */
+    #qCard {
+      will-change: transform, opacity;
+    }
+
+    .eje-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brown-dark);
+      background: var(--brown-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 22px;
+    }
+
+    .eje-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brown);
+      flex-shrink: 0;
+    }
+
+    .question-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 23px;
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--text);
+      margin-bottom: 34px;
+    }
+
+    /* ── ANSWER BUTTONS ─────────────────────── */
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      background: var(--warm-white);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 17px 18px;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15.5px;
+      font-weight: 400;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s;
+      -webkit-user-select: none;
+      user-select: none;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .answer-btn:active {
+      transform: scale(0.975);
+    }
+
+    .answer-btn.selected {
+      background: var(--brown);
+      border-color: var(--brown);
+      color: white;
+    }
+
+    .answer-btn.selected .letter-badge {
+      background: rgba(255,255,255,0.22);
+      color: white;
+    }
+
+    .letter-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--brown-xlight);
+      color: var(--brown-dark);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    /* ── BACK BUTTON ────────────────────────── */
+    .back-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 28px;
+    }
+
+    .back-btn svg {
+      flex-shrink: 0;
+    }
+
+    /* ── ANIMATIONS ─────────────────────────── */
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOutLeft {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-36px); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOutRight {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(36px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESULT SCREEN ──────────────────────── */
+    #resultScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 22px 56px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .result-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .result-header p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .chart-wrap {
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto 36px;
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    /* ── SCORE CARDS GRID ───────────────────── */
+    .scores-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 36px;
+    }
+
+    .score-card {
+      background: var(--warm-white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+    }
+
+    .score-eje {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .score-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .score-track {
+      height: 4px;
+      background: var(--brown-light);
+      border-radius: 4px;
+    }
+
+    .score-bar {
+      height: 4px;
+      background: var(--brown);
+      border-radius: 4px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── ACTION BUTTONS ─────────────────────── */
+    .dl-btn {
+      width: 100%;
+      max-width: 380px;
+      background: var(--brown);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: background 0.15s, transform 0.08s;
+    }
+
+    .dl-btn:active { transform: scale(0.97); background: var(--brown-hover); }
+
+    .restart-btn {
+      width: 100%;
+      max-width: 380px;
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 18px;
+      padding: 17px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .restart-btn:active { background: var(--brown-xlight); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER (visible durante preguntas) -->
+<div class="header" id="headerEl">
+  <div class="header-row">
+    <span class="header-title">La Rueda de la Vida</span>
+    <span class="header-counter" id="counter">1 / 32</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+</div>
+
+<!-- PREGUNTA -->
+<div class="main" id="questionScreen">
+  <div id="qCard">
+    <div class="question-text" id="questionText"></div>
+    <div class="answers" id="answersContainer"></div>
+    <button class="back-btn" id="backBtn" onclick="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver atrás
+    </button>
+  </div>
+</div>
+
+<!-- RESULTADO -->
+<div id="resultScreen">
+  <div class="result-header">
+    <h2>Tu Rueda de la Vida</h2>
+    <p>Resultados por área de vida</p>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="radarChart"></canvas>
+  </div>
+
+  <div class="scores-grid" id="scoresGrid"></div>
+
+  <button class="dl-btn" onclick="descargarImagen()">↓ Descargar gráfico</button>
+  <button class="restart-btn" onclick="reiniciar()">Empezar de nuevo</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+
+const POSITIVO = {A:-1, B:0.75, C:1.5, D:2.5};
+const NEGATIVO = {A:2.5, B:1.5, C:0.75, D:-1};
+
+const preguntas = [
+  { id:1,  eje:"Salud",      texto:"Me esfuerzo por estar en forma",                                                    valores:POSITIVO },
+  { id:2,  eje:"Espiritual", texto:"Me congrego y leo la Biblia regularmente",                                          valores:POSITIVO },
+  { id:3,  eje:"Familia",    texto:"Paso el tiempo suficiente con mi familia más cercana",                               valores:POSITIVO },
+  { id:4,  eje:"Economía",   texto:"No tengo deudas (ni siquiera en la tarjeta de crédito)",                            valores:POSITIVO },
+  { id:5,  eje:"Intelectual",texto:"Leo al menos un libro al mes",                                                      valores:POSITIVO },
+  { id:6,  eje:"Familia",    texto:"Me cuesta describir los gustos y anhelos de cada integrante de mi familia",         valores:NEGATIVO },
+  { id:7,  eje:"Trabajo",    texto:"Le dedico demasiado tiempo a mi trabajo",                                           valores:NEGATIVO },
+  { id:8,  eje:"Economía",   texto:"Tengo un plan de desarrollo económico y lo cumplo",                                 valores:POSITIVO },
+  { id:9,  eje:"Intelectual",texto:"Considero que sé todo lo que necesito para crecer",                                 valores:NEGATIVO },
+  { id:10, eje:"Emocional",  texto:"Me cuesta demostrar mis sentimientos",                                              valores:NEGATIVO },
+  { id:11, eje:"Social",     texto:"No suelo tener nuevas amistades",                                                   valores:NEGATIVO },
+  { id:12, eje:"Economía",   texto:"Me cuesta vivir diariamente que Dios es mi proveedor",                              valores:NEGATIVO },
+  { id:13, eje:"Trabajo",    texto:"Me esfuerzo constantemente por progresar laboralmente / profesionalmente",          valores:POSITIVO },
+  { id:14, eje:"Familia",    texto:"Estoy cada vez que mi familia me necesita",                                         valores:POSITIVO },
+  { id:15, eje:"Intelectual",texto:"Me gusta imaginar nuevas formas de hacer las cosas",                                valores:POSITIVO },
+  { id:16, eje:"Social",     texto:"Soy el alma de las actividades sociales",                                           valores:POSITIVO },
+  { id:17, eje:"Emocional",  texto:"Tengo cambios frecuentes en mi estado de ánimo",                                   valores:NEGATIVO },
+  { id:18, eje:"Espiritual", texto:"No me gusta involucrarme en los problemas de los demás",                            valores:NEGATIVO },
+  { id:19, eje:"Intelectual",texto:"Casi nunca investigo el significado profundo de las cosas",                         valores:NEGATIVO },
+  { id:20, eje:"Salud",      texto:"Duermo lo suficiente diariamente teniendo un buen descanso",                        valores:POSITIVO },
+  { id:21, eje:"Familia",    texto:"Me preocupo por demostrarle a mi familia lo importante que es para mí",             valores:POSITIVO },
+  { id:22, eje:"Economía",   texto:"En general no me alcanza lo que gano",                                              valores:NEGATIVO },
+  { id:23, eje:"Social",     texto:"Me cuesta integrarme a un grupo",                                                   valores:NEGATIVO },
+  { id:24, eje:"Emocional",  texto:"Puedo llorar viendo una película que me emocione",                                  valores:POSITIVO },
+  { id:25, eje:"Salud",      texto:"Suelo hacer desarreglos en mis comidas",                                            valores:NEGATIVO },
+  { id:26, eje:"Trabajo",    texto:"Me agrada hacerme responsable de lo que hago",                                      valores:POSITIVO },
+  { id:27, eje:"Espiritual", texto:"Cada momento busco vivirlo en función de lo espiritual",                            valores:POSITIVO },
+  { id:28, eje:"Social",     texto:"Siempre pienso en las necesidades de los demás",                                    valores:POSITIVO },
+  { id:29, eje:"Emocional",  texto:"Suelo tener paz y dormir bien",                                                     valores:POSITIVO },
+  { id:30, eje:"Trabajo",    texto:"El trabajo es una prioridad en mi vida",                                            valores:NEGATIVO },
+  { id:31, eje:"Espiritual", texto:"Aprovecho cada posibilidad para ayudar al otro",                                    valores:POSITIVO },
+  { id:32, eje:"Salud",      texto:"Me hago controles médicos regularmente",                                            valores:POSITIVO }
+];
+
+const EJES = ["Salud","Espiritual","Familia","Intelectual","Trabajo","Economía","Emocional","Social"];
+const OPCIONES = [
+  { key:"A", label:"Muy en desacuerdo" },
+  { key:"B", label:"En desacuerdo" },
+  { key:"C", label:"De acuerdo" },
+  { key:"D", label:"Muy de acuerdo" }
+];
+
+let currentIndex = 0;
+let respuestas = new Array(preguntas.length).fill(null);
+let radarChart;
+let animating = false;
+
+function renderQuestion(idx, direction) {
+  const p = preguntas[idx];
+  const total = preguntas.length;
+
+  document.getElementById('counter').textContent = `${idx + 1} / ${total}`;
+  document.getElementById('progressBar').style.width = `${((idx + 1) / total) * 100}%`;
+  document.getElementById('questionText').textContent = p.texto;
+
+  const backBtn = document.getElementById('backBtn');
+  backBtn.style.display = idx > 0 ? 'flex' : 'none';
+
+  const container = document.getElementById('answersContainer');
+  container.innerHTML = '';
+  OPCIONES.forEach(op => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn' + (respuestas[idx] === op.key ? ' selected' : '');
+    btn.innerHTML = `<span class="letter-badge">${op.key}</span>${op.label}`;
+    btn.addEventListener('click', () => selectAnswer(idx, op.key, btn));
+    container.appendChild(btn);
+  });
+
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  if (direction === 'forward') {
+    card.style.animation = 'slideInRight 0.28s cubic-bezier(0.4,0,0.2,1) forwards';
+  } else if (direction === 'back') {
+    card.style.animation = 'slideInLeft 0.28s cubic-bezier(0.4,0,0.2,1) forwards';
+  }
+}
+
+function selectAnswer(idx, key, btnEl) {
+  if (animating) return;
+  animating = true;
+
+  document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+  btnEl.classList.add('selected');
+  respuestas[idx] = key;
+
+  setTimeout(() => {
+    if (idx < preguntas.length - 1) {
+      const card = document.getElementById('qCard');
+      card.style.animation = 'slideOutLeft 0.22s cubic-bezier(0.4,0,0.2,1) forwards';
+      setTimeout(() => {
+        currentIndex = idx + 1;
+        renderQuestion(currentIndex, 'forward');
+        animating = false;
+      }, 220);
+    } else {
+      showResults();
+      animating = false;
+    }
+  }, 300);
+}
+
+function goBack() {
+  if (currentIndex <= 0 || animating) return;
+  animating = true;
+
+  const card = document.getElementById('qCard');
+  card.style.animation = 'slideOutRight 0.22s cubic-bezier(0.4,0,0.2,1) forwards';
+  setTimeout(() => {
+    currentIndex--;
+    renderQuestion(currentIndex, 'back');
+    animating = false;
+  }, 220);
+}
+
+function showResults() {
+  const totales = {};
+  EJES.forEach(e => totales[e] = 0);
+  preguntas.forEach((p, i) => {
+    if (respuestas[i]) totales[p.eje] += p.valores[respuestas[i]];
+  });
+
+  document.getElementById('questionScreen').style.display = 'none';
+  document.getElementById('headerEl').style.display = 'none';
+
+  const rs = document.getElementById('resultScreen');
+  rs.style.display = 'flex';
+
+  const labels = EJES;
+  const data = EJES.map(e => totales[e]);
+
+  const ctx = document.getElementById('radarChart');
+  if (radarChart) radarChart.destroy();
+
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Resultado',
+        data,
+        fill: true,
+        backgroundColor: 'rgba(168, 125, 90, 0.18)',
+        borderColor: '#a87d5a',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#a87d5a',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: -4,
+          max: 10,
+          ticks: { display: false, stepSize: 2 },
+          grid: { color: 'rgba(168,125,90,0.15)' },
+          angleLines: { color: 'rgba(168,125,90,0.15)' },
+          pointLabels: {
+            font: { size: 11, family: "'DM Sans', sans-serif", weight: '600' },
+            color: '#7a6450'
+          }
+        }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  const grid = document.getElementById('scoresGrid');
+  grid.innerHTML = '';
+  const MIN = -4, MAX = 10;
+
+  EJES.forEach(eje => {
+    const val = totales[eje];
+    const pct = Math.round(Math.max(0, ((val - MIN) / (MAX - MIN)) * 100));
+    const card = document.createElement('div');
+    card.className = 'score-card';
+    card.innerHTML = `
+      <div class="score-eje">${eje}</div>
+      <div class="score-num">${val.toFixed(1)}</div>
+      <div class="score-track">
+        <div class="score-bar" style="width:0%" data-pct="${pct}"></div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.score-bar').forEach(bar => {
+        bar.style.width = bar.dataset.pct + '%';
+      });
+    });
+  });
+}
+
+function descargarImagen() {
+  const canvas = document.getElementById('radarChart');
+  const link = document.createElement('a');
+  link.download = 'rueda-de-la-vida.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function reiniciar() {
+  currentIndex = 0;
+  respuestas = new Array(preguntas.length).fill(null);
+  animating = false;
+
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('headerEl').style.display = 'block';
+  document.getElementById('questionScreen').style.display = 'block';
+
+  renderQuestion(0, null);
+}
+
+renderQuestion(0, null);
+
+</script>
+</body>
+</html>
